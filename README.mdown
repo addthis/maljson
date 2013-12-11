@@ -1,0 +1,73 @@
+# maljson
+
+## Looking for a json parser?
+
+Looking to parse json?  You should probably use
+[Jackson](https://github.com/FasterXML/jackson).
+
+## Project Summary
+
+[org.json](http://json.org/java/) is the original java library
+prototype for handling json.  It is unfortunately only available under
+a [non-free](https://wiki.debian.org/qa.debian.org/jsonevil) license.
+
+The Android team created a
+[cleanroom](http://developer.android.com/reference/org/json/package-summary.html)
+library that is api compatible with org.json but licensed under the
+[Apache](http://www.apache.org/licenses/LICENSE-2.0) license version
+2.  `maljson` re-packages the Android work as a stand alone library.
+If you need a json parser, you should
+[use Jackson](https://github.com/FasterXML/jackson), but if you need
+org.json compatibility then `maljson` might be of help.
+
+Difference from Android upstream:
+ 
+ * Syntax exceptions include line/column numbers
+ * New getters for retrieving line/column numbers of JSONObject and JSONArray items 
+ * Trailing commas in objects are allowed
+ * Trailing commas in arrays are not interpreted as `null`
+ * A few missing methods (such as `keySet()`) were added.
+
+
+Android copyright notices and comments have been retained in the
+classes that originated there.  Diverged from Android libcore at
+d62e296abe060ff7557e731fe70f240dbaa142e8.
+
+ Praise should go to the Android team for the work that they have
+done, but bugs should be reported here (not on the Android tracker).
+
+## Building
+
+`maljson` uses [Apache Maven](http://maven.apache.org/) which is beyond
+the scope to detail.  The super simple quick start is:
+
+`mvn test`
+
+## Use
+
+```xml
+<dependency>
+  <groupId>com.addthis</groupId>
+  <artifactId>maljson</artifactId>
+  <version>latest-and-greatest</version>
+</dependency>
+```
+
+You can either install locally, or releases will eventually make their
+way to maven central.
+
+## Administrative
+
+### Versioning
+
+It's x.y.z where:
+
+ * x: something major happened
+ * y: next release
+ * z: bug fix only
+
+### License
+
+`maljson` is released under the Apache License Version 2.0.  See
+[Apache](http://www.apache.org/licenses/LICENSE-2.0) or the LICENSE
+for details.
