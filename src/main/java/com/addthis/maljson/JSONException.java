@@ -18,6 +18,9 @@ package com.addthis.maljson;
 
 import javax.annotation.Nonnull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 // Note: this class was written without inspecting the non-free org.json sourcecode.
 
 /**
@@ -46,27 +49,73 @@ import javax.annotation.Nonnull;
 public class JSONException extends Exception {
 
     @Nonnull
-    final private LineNumberInfo lineNumberInfo;
+    final private LineNumberInfo[] lineNumberInfo;
 
+    private static LineNumberInfo[] filterMissingInfo(LineNumberInfo[] input) {
+        List<LineNumberInfo> info = new ArrayList<LineNumberInfo>();
+        for(LineNumberInfo element : input) {
+            if (!LineNumberInfo.MissingInfo.equals(element)) {
+                info.add(element);
+            }
+        }
+        return info.toArray(new LineNumberInfo[info.size()]);
+    }
+
+    private static String generateLineInfoString(LineNumberInfo... info) {
+        info = filterMissingInfo(info);
+        StringBuilder builder = new StringBuilder();
+        builder.append(" at ");
+        for(int i = 0; i < info.length; i++) {
+            LineNumberInfo current = info[i];
+            if (i > 0) {
+                if (i == info.length - 1) {
+                    builder.append(" and ");
+                } else {
+                    builder.append(", ");
+                }
+            }
+            builder.append("line " + (current.getLine() + 1));
+            builder.append(" and column " + (current.getColumn() + 1));
+        }
+        return builder.toString();
+    }
 
     public JSONException(String s) {
         super(s);
-        this.lineNumberInfo = LineNumberInfo.MissingInfo;
+        this.lineNumberInfo = new LineNumberInfo[1];
+        this.lineNumberInfo[0] = LineNumberInfo.MissingInfo;
     }
 
     public JSONException(String s, LineNumberInfo lineInfo) {
         super((lineInfo == LineNumberInfo.MissingInfo) ? s :
-              s + " at line " + (lineInfo.getLine() + 1) +
-              " and column " + (lineInfo.getColumn() + 1));
+              s + generateLineInfoString(lineInfo));
+        this.lineNumberInfo = new LineNumberInfo[1];
+        this.lineNumberInfo[0] = lineInfo;
+    }
+
+    public JSONException(String s, LineNumberInfo... lineInfo) {
+        super(s + generateLineInfoString(lineInfo));
         this.lineNumberInfo = lineInfo;
     }
 
     public int getLine() {
-        return lineNumberInfo.line;
+        return getLine(0);
     }
 
     public int getColumn() {
-        return lineNumberInfo.column;
+        return getColumn(0);
+    }
+
+    public int getLine(int pos) {
+        return lineNumberInfo[pos].line;
+    }
+
+    public int getColumn(int pos) {
+        return lineNumberInfo[pos].column;
+    }
+
+    public int getLineNumberInfoSize() {
+        return lineNumberInfo.length;
     }
 
 }

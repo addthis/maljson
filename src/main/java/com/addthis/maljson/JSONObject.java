@@ -81,6 +81,13 @@ public class JSONObject {
     private static final Double NEGATIVE_ZERO = -0d;
 
     /**
+     * If false then throw an {@link com.addthis.maljson.JSONException}
+     * when attempting to insert a key that already exists into the object.
+     * Default is true.
+     */
+    private boolean allowDuplicates = true;
+
+    /**
      * A sentinel value used to explicitly define a name with no value. Unlike
      * {@code null}, names with this value:
      * <ul>
@@ -182,6 +189,21 @@ public class JSONObject {
     }
 
     /**
+     * Creates a new {@code JSONObject} with name/value mappings from the JSON
+     * string.
+     *
+     * @param json a JSON-encoded string containing an object.
+     * @param allowDuplicates whether or not to throw an exception when
+     *                        a key is encountered twice
+     * @throws JSONException if the parse fails or doesn't yield a {@code
+     *     JSONObject}.
+     */
+    public JSONObject(String json, boolean allowDuplicates) throws JSONException {
+        this(new JSONTokener(json, allowDuplicates));
+    }
+
+
+    /**
      * Creates a new {@code JSONObject} by copying mappings for the listed names
      * from the given object. Names that aren't present in {@code copyFrom} will
      * be skipped.
@@ -191,7 +213,7 @@ public class JSONObject {
         for (String name : names) {
             Object value = copyFrom.opt(name);
             if (value != null) {
-                nameValuePairs.put(name, value);
+                putIntoMap(name, value);
                 lineNumberKeys.put(name, copyFrom.getKeyLineNumber(name));
                 lineNumberValues.put(name, copyFrom.getValLineNumber(name));
             }
@@ -212,7 +234,7 @@ public class JSONObject {
      * @return this object.
      */
     public JSONObject put(String name, boolean value) throws JSONException {
-        nameValuePairs.put(checkName(name), value);
+        putIntoMap(name, value);
         return this;
     }
 
@@ -225,7 +247,7 @@ public class JSONObject {
      * @return this object.
      */
     public JSONObject put(String name, double value) throws JSONException {
-        nameValuePairs.put(checkName(name), JSON.checkDouble(value));
+        putIntoMap(name, JSON.checkDouble(value));
         return this;
     }
 
@@ -236,7 +258,7 @@ public class JSONObject {
      * @return this object.
      */
     public JSONObject put(String name, int value) throws JSONException {
-        nameValuePairs.put(checkName(name), value);
+        putIntoMap(name, value);
         return this;
     }
 
@@ -247,7 +269,7 @@ public class JSONObject {
      * @return this object.
      */
     public JSONObject put(String name, long value) throws JSONException {
-        nameValuePairs.put(checkName(name), value);
+        putIntoMap(name, value);
         return this;
     }
 
@@ -277,11 +299,34 @@ public class JSONObject {
             // deviate from the original by checking all Numbers, not just floats & doubles
             JSON.checkDouble(((Number) value).doubleValue());
         }
-        nameValuePairs.put(checkName(name), value);
+        putIntoMap(name, value, keyInfo);
         lineNumberKeys.put(name, keyInfo);
         lineNumberValues.put(name, valInfo);
         return this;
     }
+
+    private void putIntoMap(String name, Object value) throws JSONException {
+        putIntoMap(name, value, null);
+    }
+
+    private void putIntoMap(String name, Object value, LineNumberInfo keyInfo) throws JSONException {
+        if (!allowDuplicates && name != null && value != null
+            && nameValuePairs.containsKey(name)) {
+            LineNumberInfo prev = lineNumberKeys.get(name);
+            String msg = "Duplicate key \"" + name + "\" detected";
+            if (keyInfo == null && prev == null) {
+                throw new JSONException(msg);
+            } else if (keyInfo == null) {
+                throw new JSONException(msg, prev);
+            } else if (prev == null) {
+                throw new JSONException(msg, keyInfo);
+            } else {
+                throw new JSONException(msg, prev, keyInfo);
+            }
+        }
+        nameValuePairs.put(checkName(name), value);
+    }
+
 
 
     /**
@@ -325,7 +370,7 @@ public class JSONObject {
             JSONArray array = new JSONArray();
             array.put(current);
             array.put(value);
-            nameValuePairs.put(name, array);
+            putIntoMap(name, array);
         }
         return this;
     }
@@ -838,6 +883,13 @@ public class JSONObject {
     public LineNumberInfo getLineNumberInfo()
     {
         return lineNumberInfo;
+    }
+
+    public boolean getAllowDuplicates() { return allowDuplicates; }
+
+    public JSONObject setAllowDuplicates(boolean allowDuplicates) {
+        this.allowDuplicates = allowDuplicates;
+        return this;
     }
 
 }

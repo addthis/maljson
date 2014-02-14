@@ -15,6 +15,7 @@ package com.addthis.maljson;
 
 import org.junit.Test;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 public class MalJSONTokenerTest {
@@ -36,6 +37,23 @@ public class MalJSONTokenerTest {
         } catch (JSONException e) {
             fail(e.getMessage());
         }
+    }
+
+    @Test
+    public void testForbidDuplicates() {
+        boolean fail = false;
+        try {
+            new JSONObject("{ a : 1, a: 2 }", false);
+        } catch(JSONException e) {
+            assertEquals(2, e.getLineNumberInfoSize());
+            assertEquals(0, e.getLine(0));
+            assertEquals(0, e.getLine(1));
+            assertEquals(2, e.getColumn(0));
+            assertEquals(9, e.getColumn(1));
+            fail = true;
+            System.out.println(e);
+        }
+        assert(fail);
     }
 
 }

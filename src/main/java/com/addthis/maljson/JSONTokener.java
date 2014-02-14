@@ -65,6 +65,12 @@ public class JSONTokener {
     private final String in;
 
     /**
+     * If false then throw an {@link com.addthis.maljson.JSONException}
+     * when attempting to insert a key that already exists into the object.
+     */
+    private final boolean allowDuplicates;
+
+    /**
      * The index of the next character to be returned by {@link #next}. When
      * the input is exhausted, this equals the input's length.
      */
@@ -88,11 +94,16 @@ public class JSONTokener {
      *     called.
      */
     public JSONTokener(String in) {
+        this(in, true);
+    }
+
+    public JSONTokener(String in, boolean allowDuplicates) {
         // consume an optional byte order mark (BOM) if it exists
         if (in != null && in.startsWith("\ufeff")) {
             in = in.substring(1);
         }
         this.in = in;
+        this.allowDuplicates = allowDuplicates;
     }
 
     /**
@@ -393,7 +404,7 @@ public class JSONTokener {
      * an object. The opening brace '{' should have already been read.
      */
     private JSONObject readObject() throws JSONException {
-        JSONObject result = new JSONObject();
+        JSONObject result = new JSONObject().setAllowDuplicates(allowDuplicates);
 
         /* Peek to see if this is the empty object. */
         int first = nextCleanInternal();
