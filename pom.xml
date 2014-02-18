@@ -22,7 +22,7 @@
   <groupId>com.addthis</groupId>
   <artifactId>maljson</artifactId>
   <packaging>jar</packaging>
-  <version>0.1.1-SNAPSHOT</version>
+  <version>0.1.1</version>
   <name>maljson</name>
   <description>Mostly org.json compatible json library.  Derived from Android.</description>
   <licenses>
@@ -70,6 +70,6 @@
     <connection>scm:git:git@github.com:addthis/maljson.git</connection>
     <developerConnection>scm:git:git@github.com:addthis/maljson.git</developerConnection>
     <url>https://github.com/addthis/maljson</url>
-    <tag>HEAD</tag>
+    <tag>v0.1.1</tag>
   </scm>
 </project>
