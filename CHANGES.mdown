@@ -1,0 +1,4 @@
+### Release 0.1.1 (February 18, 2014)
+
+- Addition of ````allowDuplicates```` boolean field to ````JSONObject```` class. If ````false```` then throw a JSONException when the same key is inserted twice into the object. Default value is ````true````; maintains backwards compatibility.
+- Addition of the possibility of two of more line numbers stored in one ````JSONException```` object.
