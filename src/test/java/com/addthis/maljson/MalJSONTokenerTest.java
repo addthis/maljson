@@ -40,6 +40,23 @@ public class MalJSONTokenerTest {
     }
 
     @Test
+    public void testMultiCommas() {
+        JSONArray array;
+        try {
+            array = new JSONArray("[]");
+            assertEquals(0, array.length());
+            array = new JSONArray("[,]");
+            assertEquals(0, array.length());
+            array = new JSONArray("[ ,, ]");
+            assertEquals(0, array.length());
+            array = new JSONArray("[ ,,, ]");
+            assertEquals(0, array.length());
+        } catch (JSONException e) {
+            fail(e.getMessage());
+        }
+    }
+
+    @Test
     public void testForbidDuplicates() {
         boolean fail = false;
         try {

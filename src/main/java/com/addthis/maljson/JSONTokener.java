@@ -472,27 +472,14 @@ public class JSONTokener {
     private JSONArray readArray() throws JSONException {
         JSONArray result = new JSONArray();
 
-        /* to cover input that ends with ",]". */
-        boolean hasTrailingSeparator = false;
-
         while (true) {
             switch (nextCleanInternal()) {
                 case -1:
                     throw syntaxError("Unterminated array");
                 case ']':
-                    // Disable this null insertion behavior by default.  It is almost
-                    // certainly not what a user would expect in the
-                    // case of trailing comma
-                    // https://code.google.com/p/google-gson/issues/detail?id=494
-                    //if (hasTrailingSeparator) {
-                    //result.put(null);
-                    //}
                     return result;
                 case ',':
                 case ';':
-                    /* A separator without a value first means "null". */
-                    result.put(null);
-                    hasTrailingSeparator = true;
                     continue;
                 default:
                     back();
@@ -507,7 +494,6 @@ public class JSONTokener {
                     return result;
                 case ',':
                 case ';':
-                    hasTrailingSeparator = true;
                     continue;
                 default:
                     throw syntaxError("Unterminated array");
